@@ -1,0 +1,7 @@
+module Main (main) where
+
+import AoC2015Haskell (someFunc)
+
+
+main :: IO ()
+main = someFunc

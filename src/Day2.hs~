@@ -1,0 +1,33 @@
+{- |
+Copyright: (c) 2021 Theo Garefalakis
+SPDX-License-Identifier: MIT
+Maintainer: Theo Garefalakis <tgaref@gmail.com>
+
+Advent of Code 2015 using Haskell
+-}
+
+module Day1
+       ( day1a, day1b
+       ) where
+
+import qualified Data.Text as T
+
+
+day1a :: Text -> Int
+day1a input = 
+  T.foldl' (\fl c -> if c == '(' then fl + 1 else fl - 1) 0 input
+
+day1b :: Text -> Int
+day1b input = go input 0 0
+  where
+    go :: Text -> Int -> Int -> Int 
+    go text fl pos
+     | text == "" = error "Did not go to basement!"
+     | otherwise  =
+      let fl' = fl + if T.head text == '(' then 1 else -1
+      in
+        if fl' == -1
+        then pos + 1
+        else go (T.tail text) fl' (pos+1)
+            
+
