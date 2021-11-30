@@ -26,6 +26,5 @@ cabal.project.local~
 /app/Day*.hs~
 /src/Lib.hs~
 /.gitignore~
-/inputs/7.input~
-/inputs/7.test~
-/inputs/7b.input~
+/inputs/*.input~
+/inputs/*.test~

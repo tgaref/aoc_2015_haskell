@@ -16,7 +16,6 @@ import qualified Data.Attoparsec.Text as A
 import qualified Data.Map.Strict as M
 import Data.Bits
 
-
 data Operand = Wire Text | Signal Word16
   deriving stock (Eq, Ord, Show)
 
@@ -69,68 +68,72 @@ parseLine t = case A.parseOnly commandP t of
   Right (c,o) -> (o,c)
   Left _  -> error "Failed to parse command..."
 
-type Circuit = ReaderT (Map Operand Command) (State (Map Operand Word16)) Word16
+type Circuit a = ReaderT (Map Operand Command) (State (Map Operand Word16)) a
 
-evalC :: Command -> Map Operand Command -> State (Map Operand Word16) Word16
-evalC (NOT a)      cs = do
-  v <- compute a cs
+runCircuit :: Circuit a -> Map Operand Command -> Map Operand Word16 -> a
+runCircuit circuit commands signals = evalState (runReaderT circuit commands) signals
+
+
+evalC :: Command -> Circuit Word16
+evalC (NONE a) = compute a
+
+evalC (NOT a) = do
+  v <- compute a
   modify' $ M.insert a v
-  pure $ complement v
-  
-evalC (AND a b)    cs = do
-  va <- compute a cs
+  pure $ complement v  
+
+evalC (AND a b) = do
+  va <- compute a
   modify' $ M.insert a va
-  vb <- compute b cs
+  vb <- compute b
   modify' $ M.insert b vb
   pure $ va .&. vb
   
-evalC (OR a b)     cs = do
-  va <- compute a cs
+evalC (OR a b) = do
+  va <- compute a
   modify' $ M.insert a va
-  vb <- compute b cs
+  vb <- compute b
   modify' $ M.insert b vb
   pure $ va .|. vb
 
-evalC (LSHIFT a b) cs = do
-  va <- compute a cs
+evalC (LSHIFT a b) = do
+  va <- compute a
   modify' $ M.insert a va
-  vb <- compute b cs
+  vb <- compute b
   modify' $ M.insert b vb
   pure $ va `shiftL` fromIntegral vb
 
-evalC (RSHIFT a b) cs = do
-  va <- compute a cs
+evalC (RSHIFT a b) = do
+  va <- compute a
   modify' $ M.insert a va
-  vb <-  compute b cs
+  vb <-  compute b
   modify' $ M.insert b vb
   pure $ va `shiftR` fromIntegral vb
 
-evalC (NONE a)     cs = compute a cs
-
-compute :: Operand -> Map Operand Command -> State (Map Operand Word16) Word16
-compute (Signal a)   _  = pure a
-compute w@(Wire t)   cs = do
+compute :: Operand -> Circuit Word16
+compute (Signal a) = pure a
+compute w@(Wire t) = do
+  cs <- ask
+  let c = case M.lookup (Wire t) cs of
+            (Just a) -> a
+            Nothing      -> error "Failed to find wire..." 
   m <- get
   case M.lookup w m of
     Just a  -> pure a 
-    Nothing -> evalC c cs
-  where
-    c = case M.lookup (Wire t) cs of
-          (Just a) -> a
-          Nothing      -> error "Failed to find wire..." 
+    Nothing -> evalC c    
                           
 day7a :: IO Word16
 day7a = do
   input <- readInput "inputs/7a.input"
   let commands = reverse $ fmap parseLine input  
-  pure $ evalState (compute (Wire "a") (M.fromList commands)) M.empty 
+  pure $ runCircuit (compute (Wire "a")) (M.fromList commands) M.empty 
   
 
 day7b :: IO Word16
 day7b = do
   input <- readInput "inputs/7b.input"
   let commands = reverse $ fmap parseLine input  
-  pure $ evalState (compute (Wire "a") (M.fromList commands)) M.empty 
+  pure $ runCircuit (compute (Wire "a")) (M.fromList commands) M.empty 
 
 main ::IO ()
 main = do
