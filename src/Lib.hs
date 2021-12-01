@@ -12,3 +12,7 @@ substrOflen wrd n = go wrd []
       | T.length w < n  = reverse acc
       | otherwise       = go (T.tail w) (T.take n w : acc)
 
+simulate :: Int -> (a -> a) -> a -> a
+simulate !n f !a
+ | n <= 0    = a
+ | otherwise = simulate (n-1) f (f a) 
