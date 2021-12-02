@@ -128,3 +128,9 @@ executable day10
   hs-source-dirs:      app
   main-is:             Day10.hs
   build-depends:       AoC2015-Haskell
+
+executable day11
+  import:              common-options
+  hs-source-dirs:      app
+  main-is:             Day11.hs
+  build-depends:       AoC2015-Haskell
