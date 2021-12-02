@@ -26,6 +26,8 @@ common common-options
                      , memory
                      , bytestring
                      , hashable
+                     , aeson
+                     , scientific
   
   mixins:              base hiding (Prelude)
                      , relude (Relude as Prelude)
@@ -133,4 +135,10 @@ executable day11
   import:              common-options
   hs-source-dirs:      app
   main-is:             Day11.hs
+  build-depends:       AoC2015-Haskell
+
+executable day12
+  import:              common-options
+  hs-source-dirs:      app
+  main-is:             Day12.hs
   build-depends:       AoC2015-Haskell
