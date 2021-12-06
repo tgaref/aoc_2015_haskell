@@ -110,4 +110,3 @@ main = do
   input <- readInput "inputs/16.input"
   print $ day16a input
   print $ day16b input
-
