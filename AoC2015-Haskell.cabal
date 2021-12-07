@@ -29,6 +29,7 @@ common common-options
                      , aeson
                      , scientific
                      , megaparsec
+                     , vector
   
   mixins:              base hiding (Prelude)
                      , relude (Relude as Prelude)
@@ -172,4 +173,10 @@ executable day17
   import:              common-options
   hs-source-dirs:      app
   main-is:             Day17.hs
+  build-depends:       AoC2015-Haskell
+
+executable day18
+  import:              common-options
+  hs-source-dirs:      app
+  main-is:             Day18.hs
   build-depends:       AoC2015-Haskell
