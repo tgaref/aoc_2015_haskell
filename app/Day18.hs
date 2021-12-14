@@ -1,5 +1,3 @@
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE TupleSections #-}
 {- |
 Copyright: (c) 2021 Theo Garefalakis
 SPDX-License-Identifier: MIT

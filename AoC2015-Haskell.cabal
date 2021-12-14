@@ -30,6 +30,7 @@ common common-options
                      , scientific
                      , megaparsec
                      , vector
+                     , arithmoi
   
   mixins:              base hiding (Prelude)
                      , relude (Relude as Prelude)
@@ -179,4 +180,16 @@ executable day18
   import:              common-options
   hs-source-dirs:      app
   main-is:             Day18.hs
+  build-depends:       AoC2015-Haskell
+
+executable day19
+  import:              common-options
+  hs-source-dirs:      app
+  main-is:             Day19.hs
+  build-depends:       AoC2015-Haskell
+
+executable day20
+  import:              common-options
+  hs-source-dirs:      app
+  main-is:             Day20.hs
   build-depends:       AoC2015-Haskell
