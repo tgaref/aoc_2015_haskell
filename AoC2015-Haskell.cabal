@@ -31,6 +31,8 @@ common common-options
                      , megaparsec
                      , vector
                      , arithmoi
+                     , PSQueue
+                     , extra
   
   mixins:              base hiding (Prelude)
                      , relude (Relude as Prelude)

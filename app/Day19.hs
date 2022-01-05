@@ -10,7 +10,7 @@ module Main
        ( main
        ) where
 
--- import           Lib (simulate)
+
 import qualified Data.Text as T
 import           Data.Map.Strict ((!?))
 import qualified Data.Map.Strict as M
@@ -21,6 +21,8 @@ import qualified Data.Attoparsec.Text as A
 type Element = Text
 data Rule = Rule Element [Element]
   deriving stock (Eq, Ord, Show)
+
+-- Read input
 
 readInput :: FilePath -> IO [Rule]
 readInput file = fmap parseRule . T.lines <$> readFileText file
@@ -42,14 +44,21 @@ parseRule t = case A.parseOnly ruleP t of
 medP :: Parser [Element]
 medP = A.many1 elementP
 
-medicine :: [Element]
-medicine = case A.parseOnly medP medicine' of
-  Left _  -> error "Failed to parse medicine..."
-  Right a -> a
+-- Solution
 
-medicine' :: Text
---medicine' = "HOH"
-medicine' = "CRnSiRnCaPTiMgYCaPTiRnFArSiThFArCaSiThSiThPBCaCaSiRnSiRnTiTiMgArPBCaPMgYPTiRnFArFArCaSiRnBPMgArPRnCaPTiRnFArCaSiThCaCaFArPBCaCaPTiTiRnFArCaSiRnSiAlYSiThRnFArArCaSiRnBFArCaCaSiRnSiThCaCaCaFYCaPTiBCaSiThCaSiThPMgArSiRnCaPBFYCaCaFArCaCaCaCaSiThCaSiRnPRnFArPBSiThPRnFArSiRnMgArCaFYFArCaSiRnSiAlArTiTiTiTiTiTiTiRnPMgArPTiTiTiBSiRnSiAlArTiTiRnPMgArCaFYBPBPTiRnSiRnMgArSiThCaFArCaSiThFArPRnFArCaSiRnTiBSiThSiRnSiAlYCaFArPRnFArSiThCaFArCaCaSiThCaCaCaSiRnPRnCaFArFYPMgArCaPBCaPBSiRnFYPBCaFArCaSiAl"               
+medicine :: Text
+medicine = "CRnSiRnCaPTiMgYCaPTiRnFArSiThFArCaSiThSiThPBCaCaSiRnSiRnTiTiMgArPBCaPMgYPTiRnFArFArCaSiRnBPMgArPRnCaPTiRnFArCaSiThCaCaFArPBCaCaPTiTiRnFArCaSiRnSiAlYSiThRnFArArCaSiRnBFArCaCaSiRnSiThCaCaCaFYCaPTiBCaSiThCaSiThPMgArSiRnCaPBFYCaCaFArCaCaCaCaSiThCaSiRnPRnFArPBSiThPRnFArSiRnMgArCaFYFArCaSiRnSiAlArTiTiTiTiTiTiTiRnPMgArPTiTiTiBSiRnSiAlArTiTiRnPMgArCaFYBPBPTiRnSiRnMgArSiThCaFArCaSiThFArPRnFArCaSiRnTiBSiThSiRnSiAlYCaFArPRnFArSiThCaFArCaCaSiThCaCaCaSiRnPRnCaFArFYPMgArCaPBCaPBSiRnFYPBCaFArCaSiAl"               
+
+toElements :: Text -> [Element]
+toElements t = case A.parseOnly medP t of
+  Left _  -> error "Failed to parse medicine..."
+  Right a -> a 
+
+simplify :: Text -> Char
+simplify "Rn" = '('
+simplify "Ar" = ')'
+simplify "Y" = ','
+simplify _ = 'x'
 
 replaceAt :: Int -> [a] -> [a] -> [a]
 replaceAt n input r = go [] input 1
@@ -66,49 +75,50 @@ oneReplacement m molecule = foldl' (\acc (i,c) ->
                                         Just rs -> acc `S.union` S.fromList (replaceAt i molecule <$> rs)
                                    ) S.empty $ zip [1..] molecule
 
-splitList :: Eq a => [a] -> a -> [[a]]
-splitList []   _ = []
-splitList list a = seg : splitList rest a
+splitTill :: (a -> Bool) -> [a] -> ([a], [a])
+splitTill f = go []
   where
-    (seg, rest) = go [] list 
-    go ys []     = (ys, [])
-    go ys (x:xs)
-      | x == a = (reverse (x:ys), xs)
-      | otherwise = go (x:ys) xs
-    
-nonTerminals :: Set [Element]
-nonTerminals = S.fromList [["Al"], ["B"], ["Ca"], ["F"], ["H"], ["Mg"], ["N"], ["O"], ["P"], ["Si"], ["Th"], ["Ti"]]
+    go acc [] = (acc, [])
+    go acc (x:xs)
+      | f x    = (x : acc, xs)
+      | otherwise = go (x : acc) xs
 
+splitTill1 :: (a -> Bool) -> [a] -> ([a], [a])
+splitTill1 f = go []
+  where
+    go acc []  = (acc, [])
+    go _   [_] = error "Should not happen..."
+    go acc (x:y:xs)
+      | f x    = (y : x : acc, xs)
+      | otherwise = go (x : acc) (y:xs)
+
+takeSeg :: [Char] -> ([Char], [Char], [Char])
+takeSeg elts = (reverse rest', seg, rest)
+  where
+    (start, rest) = splitTill (== ')') elts
+    (seg, rest') = splitTill1 (== '(') start
+                            
 day19a :: Map Element [[Element]] -> Int
-day19a m = S.size $ oneReplacement m medicine
+day19a m = S.size $ oneReplacement m (toElements medicine)
 
-test = seg
+day19b :: Int
+day19b = go (simplify <$> toElements medicine) 0
   where
-    seg = case segments of
-      []     -> error "No input..."
-      (a:_) -> a
-    target = medicine
---    target = ["H","O","H","O","H","O"] :: [Element]
---    bound = length target
-    segments = splitList target "Ar"
-
-day19b :: Map Element [[Element]] -> Int
-day19b m = go (S.fromList [["e"]]) 0
-  where
-    target = medicine
---    target = ["H","O","H","O","H","O"] :: [Element]
-    bound = length target
-    go molecules !k
-      | target `S.member` molecules = k
-      | otherwise =
-        let molecules' = S.filter (\mol -> length mol <= bound) $ S.foldl' S.union S.empty $ S.map (oneReplacement m) molecules
-        in go molecules' (k+1)
-
+    count seg = length seg - 2 * commas - 3
+      where
+        commas = length (filter (== ',') seg)
+          
+    go molecule !acc
+      | '(' `notElem` molecule = acc + length molecule - 1
+      | otherwise = go (a <> ['x'] <> c) (acc + k) 
+        where
+          (a,b,c) = takeSeg molecule
+          k = count b 
 
 main ::IO ()
 main = do 
   input <- readInput "inputs/19.input"
   let rules = M.fromListWith (<>) $ fmap (\(Rule e es) -> (e, [es])) input
---  print rules
-  --  print $ day19a rules
-  print $ day19b rules
+  print $ day19a rules
+  print day19b
+
