@@ -207,3 +207,9 @@ executable day22
   hs-source-dirs:      app
   main-is:             Day22.hs
   build-depends:       AoC2015-Haskell
+
+executable day23
+  import:              common-options
+  hs-source-dirs:      app
+  main-is:             Day23.hs
+  build-depends:       AoC2015-Haskell
