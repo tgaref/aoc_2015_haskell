@@ -33,6 +33,7 @@ common common-options
                      , arithmoi
                      , PSQueue
                      , extra
+                     , mod
   
   mixins:              base hiding (Prelude)
                      , relude (Relude as Prelude)
@@ -70,6 +71,7 @@ common common-options
                        ViewPatterns
                        BangPatterns
                        MultiWayIf
+                       DataKinds
 
 
 library
@@ -218,4 +220,10 @@ executable day24
   import:              common-options
   hs-source-dirs:      app
   main-is:             Day24.hs
+  build-depends:       AoC2015-Haskell
+
+executable day25
+  import:              common-options
+  hs-source-dirs:      app
+  main-is:             Day25.hs
   build-depends:       AoC2015-Haskell
