@@ -73,8 +73,8 @@ playerTurn :: Int -> GameState -> Mana -> [(GameState, Mana)]
 playerTurn difficulty gs mana = gss
   where
     tmr = timer gs
-    gss = fmap (\spell -> (player difficulty gs spell, mana + cost spell))
-          $ filter (\spell -> tmr ! spell == 0 && cost spell <= playerMana gs) [MagicMissile, Drain, Shield, Poison, Recharge]
+    gss = (\spell -> (player difficulty gs spell, mana + cost spell))
+          <$> filter (\spell -> tmr ! spell == 0 && cost spell <= playerMana gs) [MagicMissile, Drain, Shield, Poison, Recharge]
 
 shortestPath :: Int -> Int -> (GameState -> Bool) -> GameState -> Mana
 shortestPath difficulty dmg finished start = go (PQ.singleton start 0)

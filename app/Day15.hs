@@ -54,6 +54,6 @@ day15b = maximum [ scoreB (sugar, sprink, candy, 100 - sugar - sprink - candy) |
          
 main ::IO ()
 main = do
-  print $ day15a
-  print $ day15b
+  print day15a
+  print day15b
 
