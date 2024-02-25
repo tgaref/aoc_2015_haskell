@@ -1,0 +1,15 @@
+{- |
+Copyright: (c) 2021 Theo Garefalakis
+SPDX-License-Identifier: MIT
+Maintainer: Theo Garefalakis <tgaref@gmail.com>
+
+Advent of Code 2015 using Haskell
+-}
+
+module AoC2015Haskell
+       ( someFunc
+       ) where
+
+
+someFunc :: IO ()
+someFunc = putStrLn ("someFunc" :: String)
